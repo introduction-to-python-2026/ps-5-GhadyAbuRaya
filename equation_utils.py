@@ -1,48 +1,61 @@
-def split_before_uppercases(formula):
-    elements = []
-    current = ""
+from sympy import symbols, Eq, solve as sympy_solve
 
-    for char in formula:
-        if char.isupper():
-            if current:
-                elements.append(current)
-            current = char
-        else:
-            current += char
+# רשימת היסודות
+ELEMENTS = [
+    'H', 'He', 'Li', 'Be', 'B', 'C', 'N', 'O', 'F', 'Ne',
+    'Na', 'Mg', 'Al', 'Si', 'P', 'S', 'Cl', 'Ar', 'K', 'Ca',
+    'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn',
+    'Ga', 'Ge', 'As', 'Se', 'Br', 'Kr', 'Rb', 'Sr', 'Y', 'Zr',
+    'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'In', 'Sn',
+    'Sb', 'I', 'Te', 'Xe', 'Cs', 'Ba', 'La', 'Ce', 'Pr', 'Nd',
+    'Pm', 'Sm', 'Eu', 'Gd', 'Tb', 'Dy', 'Ho', 'Er', 'Tm', 'Yb',
+    'Lu', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg',
+    'Tl', 'Pb', 'Bi', 'Po', 'At', 'Rn', 'Fr', 'Ra', 'Ac', 'Th',
+    'Pa', 'U', 'Np', 'Pu', 'Am', 'Cm', 'Bk', 'Cf', 'Es', 'Fm',
+    'Md', 'No', 'Lr', 'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds',
+    'Rg', 'Cn', 'Uut', 'Uuq', 'Uup', 'Uuh', 'Uus', 'Uuo'
+]
 
-    if current:
-        elements.append(current)
+def generate_equation_for_element(compounds, coefficients, element):
+    """Generates a symbolic equation for the given element."""
+    equation = 0
+    for i, compound in enumerate(compounds):
+        if element in compound:
+            equation += coefficients[i] * compound[element]
+    return equation
 
-    return elements
+def build_equations(reactant_atoms, product_atoms):
+    """Builds a list of symbolic equations for each element."""
+    ## coefficients ##
+    reactant_coefficients = list(symbols(f'a0:{len(reactant_atoms)}'))
+    product_coefficients = list(symbols(f'b0:{len(product_atoms)}')) 
+    # אילוץ שהמקדם האחרון הוא 1, לכן פותרים עבור כל השאר
+    product_coefficients = product_coefficients[:-1] + [1] 
 
+    ## equations ##
+    equations = []
+    for element in ELEMENTS:
+        lhs = generate_equation_for_element(reactant_atoms, reactant_coefficients, element)
+        rhs = generate_equation_for_element(product_atoms, product_coefficients, element)
+        if lhs != 0 or rhs != 0:
+            equations.append(Eq(lhs, rhs))
 
-def split_at_digit(formula):
-    name = ""
-    num = ""
+    # מחזיר את רשימת המשוואות ואת רשימת המקדמים שיש לפתור (ללא המקדם 1)
+    return equations, reactant_coefficients + product_coefficients[:-1]
 
-    for c in formula:
-        if c.isdigit():
-            num += c
-        else:
-            name += c
+def my_solve(equations, coefficients):
+    """Solves the system of equations for the coefficients of the reaction."""
+    solution = sympy_solve(equations, coefficients)
 
-    return name, int(num) if num else 1
-
-
-def count_atoms_in_molecule(molecular_formula):
-    """Takes a molecular formula (string) and returns a dictionary of atom counts.
-    Example: 'H2O' → {'H': 2, 'O': 1}"""
-
-    atoms = {}   # Step 1
-
-    for atom in split_before_uppercases(molecular_formula):
-        atom_name, atom_count = split_at_digit(atom)
-
-        # Step 2
-        atoms[atom_name] = atoms.get(atom_name, 0) + atom_count
-
-    # Step 3
-    return atoms
-
+    # בדיקה אם הפתרון הוא מילון (Dictionary) שמכיל פתרון ייחודי לכל המקדמים
+    if isinstance(solution, dict) and len(solution) == len(coefficients):
+        coefficient_values = []
+        for coefficient in coefficients:
+            # המרה מפורשת ל-float כדי למנוע שגיאות דיוק בהשוואת הטסטים
+            coefficient_values.append(float(solution[coefficient]))
+        return coefficient_values
+    
+    # אם הפתרון לא נמצא או שהוא לא בפורמט צפוי (למשל, מערכת לא קבועה), מחזיר רשימה ריקה
+    return []
 
 
