@@ -1,4 +1,4 @@
-# Add the def split_before_uppercases(elements):
+def split_before_uppercases(elements):
     current = ""
 
     for char in s:
