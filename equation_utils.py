@@ -1,7 +1,8 @@
-def split_before_uppercases(elements):
+def split_before_uppercases(formula):
+    elements = []
     current = ""
 
-    for char in s:
+    for char in formula:
         if char.isupper():
             if current:
                 elements.append(current)
@@ -15,13 +16,11 @@ def split_before_uppercases(elements):
     return elements
 
 
-def split_at_digit(element_string):
-   
-    
+def split_at_digit(formula):
     name = ""
     num = ""
 
-    for c in element_string:
+    for c in formula:
         if c.isdigit():
             num += c
         else:
@@ -31,18 +30,14 @@ def split_at_digit(element_string):
 
 
 def count_atoms_in_molecule(molecular_formula):
-    
-    atoms = {}
+    atom_counts = {}
+    parts = split_before_uppercases(molecular_formula)
 
-    # 1. split the formula into ["C6", "H12", "O6"]
-    pieces = split_before_uppercases(molecular_formula)
+    for part in parts:
+        name, count = split_at_digit(part)
+        atom_counts[name] = atom_counts.get(name, 0) + count
 
-    # 2. process each piece
-    for piece in pieces:
-        name, count = split_at_digit(piece)
-        atoms[name] = atoms.get(name, 0) + count
-
-    return atomsimport statements for necessary sympy functions here
+    return atom_counts
 
 
 ELEMENTS = [
