@@ -1,4 +1,48 @@
-# Add the import statements for necessary sympy functions here
+# Add the def split_before_uppercases(elements):
+    current = ""
+
+    for char in s:
+        if char.isupper():
+            if current:
+                elements.append(current)
+            current = char
+        else:
+            current += char
+
+    if current:
+        elements.append(current)
+
+    return elements
+
+
+def split_at_digit(element_string):
+   
+    
+    name = ""
+    num = ""
+
+    for c in element_string:
+        if c.isdigit():
+            num += c
+        else:
+            name += c
+
+    return name, int(num) if num else 1
+
+
+def count_atoms_in_molecule(molecular_formula):
+    
+    atoms = {}
+
+    # 1. split the formula into ["C6", "H12", "O6"]
+    pieces = split_before_uppercases(molecular_formula)
+
+    # 2. process each piece
+    for piece in pieces:
+        name, count = split_at_digit(piece)
+        atoms[name] = atoms.get(name, 0) + count
+
+    return atomsimport statements for necessary sympy functions here
 
 
 ELEMENTS = [
