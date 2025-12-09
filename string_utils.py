@@ -13,7 +13,7 @@ def split_before_each_uppercases(formula):
     return split_formula
 
 
-def split_at_first_digit(formula):
+def split_at_digit(formula):
     digit_location = 1
     for ch in formula[1:]:
         if ch.isdigit():
@@ -33,7 +33,6 @@ def count_atoms_in_molecule(molecular_formula):
     Example: 'H2O' → {'H': 2, 'O': 1}"""
     atoms = {}
     for atom in split_before_each_uppercases(molecular_formula):
-      atom_name, atom_count = split_at_first_digit(atom)
+      atom_name, atom_count = split_at_digit(atom)
       atoms[atom_name]= atom_count
     return atoms  
-
